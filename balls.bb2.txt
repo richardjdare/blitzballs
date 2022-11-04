@@ -1,0 +1,42 @@
+;bouncy balls demo
+NEWTYPE.ball
+  x.q: y.q: xs.q: ys.q: f.q
+End NEWTYPE
+
+Dim List balls.ball(10)
+While AddLast(balls())
+  balls()\x =Rnd(240)+32,Rnd(160)+32,(Rnd-.5)*8,(Rnd-.5)*8,Rnd(63)
+Wend
+LoadShapes 0,"Work:blitzcode/balls/resources/balls.shp"
+LoadPalette 0,"Work:blitzcode/balls/resources/balls.pal"
+
+BitMap 0,320,256,5
+BitMap 1,320,256,5
+Queue 0,50
+Queue 1,50
+db.w = 0 : j.w = 0
+
+VWait 150
+BLITZ
+Slice 0,44,$5
+Use Palette 0
+For i = 50 To 255
+  If i MOD 15 = 0 Then j = j + 1
+  ColSplit 0,j/3,0,j,i
+Next
+ColSplit 0,0,0,0,255
+
+Repeat
+VWait
+  Show db: db = 1-db : Use BitMap db : UnQueue db
+  ResetList balls()
+  While NextItem(balls())
+    balls()\x+balls()\xs
+    balls()\y+balls()\ys
+    balls()\f = QWrap(balls()\f + 1,0,64)
+    If balls()\x<8 OR balls()\x>(320-35) Then balls()\xs=-balls()\xs
+    If balls()\y<8 OR balls()\y>(256-35) Then balls()\ys=-balls()\ys
+    QBlit db,balls()\f,balls()\x,balls()\y
+  Wend
+Until Joyb(0) = 1
+End
